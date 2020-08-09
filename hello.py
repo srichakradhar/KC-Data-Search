@@ -77,13 +77,11 @@ def my_form_post():
 
 @app.route('/loaddata')
 def loaddata():
-    print("ImHere")
     source = request.args.get('source')
     term = request.args.get('term')
     global oldTerm, count, datasetCount, newsPage
     if(term != oldTerm):
         oldTerm = term
-        print("this ran")
         count = 0
         datasetCount = 1
         newsPage = 1
@@ -91,15 +89,12 @@ def loaddata():
         api = KaggleApi()
         api.authenticate()
         text = term
-        print(text)
         datasets = api.dataset_list(search=text, page = datasetCount)
         if not datasets:
-            print("here")
         dataset = []
         i=0
         for dat in datasets[count:count+4]:
             i = i+1
-            print(dat)
             dataset.append({'name': dat.title,
                             'source': 'Kaggle',
                             'size': dat.size,
@@ -112,12 +107,10 @@ def loaddata():
         count = count + len(dataset)
         if not dataset:
             datasetCount += 1
-            print(datasetCount)
             count = 0
         resu = make_response(json.dumps(dataset), 200)
         return resu
     elif(source=='News'):
-        print(newsPage)
         apiSecret = '74fa401c60a045438f71dd307d1399e9'
         newsapi = NewsApiClient(api_key=apiSecret)
         all_articles = newsapi.get_everything(q=term,
@@ -128,14 +121,12 @@ def loaddata():
         resu = make_response(json.dumps(all_articles['articles']), 200)
         return resu
     elif(source=='Data.gov'):
-        print('Data.Gov')
         response = requests.get('http://catalog.data.gov/api/3/action/package_search?q=' +term+ '&rows=50')
         response_dict = json.loads(response.content)
         resu = make_response(json.dumps(response_dict['result']['results']), 200)
         return resu
     elif(source=='KCMO.org'):
         global client
-        print('KCMO.org')
         result = client.datasets(q=term)
         resu = make_response(json.dumps(result), 200)
         return resu
@@ -161,7 +152,6 @@ def loaddata():
                 tweets_list.append(status)
             max_id = tweets_list[-1]['id']
 
-        print('Twitter')
         resu = make_response(json.dumps(tweets_list), 200)
         return resu
 
