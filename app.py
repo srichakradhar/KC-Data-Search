@@ -90,7 +90,6 @@ def loaddata():
         api.authenticate()
         text = term
         datasets = api.dataset_list(search=text, page = datasetCount)
-        if not datasets:
         dataset = []
         i=0
         for dat in datasets[count:count+4]:
