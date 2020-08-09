@@ -1,0 +1,692 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    body {
+        font-family: Arial;
+    }
+
+    /* Style the tab */
+    .tab {
+        overflow: hidden;
+        border: 1px solid #ccc;
+        background-color: #f1f1f1;
+    }
+
+    /* Style the buttons inside the tab */
+    .tab button {
+        background-color: inherit;
+        float: left;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 14px 16px;
+        transition: 0.3s;
+        font-size: 17px;
+    }
+
+    /* Change background color of buttons on hover */
+    .tab button:hover {
+        background-color: #ddd;
+    }
+
+    /* Create an active/current tablink class */
+    .tab button.active {
+        background-color: #ccc;
+    }
+
+    /* Style the tab content */
+    .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-top: none;
+    }
+</style>
+
+<br><br>
+<div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8">
+        <div class="card card-sm">
+            <div class="card-body row no-gutters align-items-center">
+
+                <!--end of col-->
+
+
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                      <span class="" id=""><i class="fas fa-search h4 text-body"></i></span>
+                  </div>
+                  <input style="border-right: #9e9e9e solid" id="searchTerm" class="form-control form-control-lg form-control-borderless"
+                         placeholder="Search topics or keywords" {% if value %} value="{{value}}" {% endif %}>
+
+                    <input id="num" class="form-control form-control-lg form-control-borderless"
+                        placeholder="Number of Tweets to download" width="100px;">
+                <button id="getSearchTerm" type="button" class="btn btn-lg btn-success"
+                        onclick="getSearchData()">Search</button>
+                <br><br>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--end of col-->
+</div>
+
+<div class=" container tab" style="margin-top: 40px;">
+    <button class="tablinks" onclick="openTab(event, 'Kaggle')">Kaggle</button>
+    <button class="tablinks" onclick="openTab(event, 'Data.gov')">Data.gov</button>
+    <button class="tablinks" onclick="openTab(event, 'KCMO.org')">KCMO.org</button>
+    <button class="tablinks" onclick="openTab(event, 'News')">News</button>
+    <button class="tablinks" onclick="openTab(event, 'Twitter')">Twitter</button>
+</div>
+<div id="Kaggle" class="tabcontent">
+    <div class="container" style="margin-top: 30px;">
+        <div class="row" style="margin-top: 10px;">
+            <div id="kaggleScroller" class="mb-3">
+                <template id="kaggle_template">
+                    <div class="col">
+                        <div class="card" style="margin-top: 10px;">
+                            <h5 class="card-header" id="kaggleTitle"></h5>
+                            <div class="card-body">
+                                <h6 class="card-text" id="kaggleFileType"></h6>
+                                <h6 class="card-text" id="kaggleDate"></h6>
+                                <p class="card-text" id="kaggleContent"></p>
+                                <a href="" id="kaggleLoadDetails" class="card-link btn btn-outline-primary" target="_blank">Details</a>
+                                <a href="" id="kaggleLoadDataset" class="card-link btn btn-outline-success">Load Dataset</a>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center mb-3" id="kaggleSentinel">
+            <div class="spinner-border" role="status"></div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="Data.gov" class="tabcontent">
+    <div class="container" style="margin-top: 30px;">
+        <div class="row" style="margin-top: 10px;">
+            <div id="datagovScroller" class="mb-3">
+                <template id="datagov_template">
+                    <div class="col">
+                        <div class="card" style="margin-top: 10px;">
+                            <h5 class="card-header" id="datagovTitle"></h5>
+                            <div class="card-body">
+                                <h6 class="card-text" id="datagovFileType"></h6>
+                                <h6 class="card-text" id="datagovDate"></h6>
+                                <p class="card-text" id="datagovContent"></p>
+                                <a href="" id="datagovLoadDetails" class="card-link btn btn-outline-primary" target="_blank">Details</a>
+                                <a href="" id="datagovLoadDataset" class="card-link btn btn-outline-success">Load Dataset</a>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+<div class="d-flex justify-content-center mb-3" id="datagovSentinel">
+    <div class="spinner-border" role="status"></div>
+</div>
+    </div>
+</div>
+
+<div id="KCMO.org" class="tabcontent">
+    <div class="container" style="margin-top: 30px;">
+        <div class="row" style="margin-top: 10px;">
+            <div id="KCMOScroller" class="mb-3">
+                <template id="KCMO_template">
+                    <div class="col">
+                        <div class="card" style="margin-top: 10px;">
+                            <h5 class="card-header" id="KCMOTitle"></h5>
+                            <div class="card-body">
+                                <h6 class="card-text" id="KCMOFileType"></h6>
+                                <h6 class="card-text" id="KCMODate"></h6>
+                                <p class="card-text" id="KCMOContent"></p>
+                                <a href="" id="KCMOLoadDetails" class="card-link btn btn-outline-primary" target="_blank">Details</a>
+                                <a href="" id="KCMOLoadDataset" class="card-link btn btn-outline-success">Load Dataset</a>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center mb-3" id="KCMOSentinel">
+            <div class="spinner-border" role="status"></div>
+        </div>
+    </div>
+</div>
+
+<div id="News" class="tabcontent">
+    <div class="container" style="margin-top: 30px;">
+        <div class="row" style="margin-top: 10px;">
+            <div id="newsScroller" class="mb-3">
+                <template id="news_template">
+                    <div class="col">
+                        <div class="card" style="margin-top: 10px;">
+                            <h5 class="card-header" id="newstitle"></h5>
+                            <div class="card-body">
+                                <h6 class="card-text" id="newsfileType"></h6>
+                                <h6 class="card-text" id="newsdate"></h6>
+                                <p class="card-text" id="newscontent"></p>
+                                <a href="" id="newsloadDetails" class="card-link btn btn-outline-primary" target="_blank">Details</a>
+                                <a href="" id="newsloadDataset" class="card-link btn btn-outline-success">Load Dataset</a>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center mb-3" id="newsSentinel">
+            <div class="spinner-border" role="status"></div>
+        </div>
+    </div>
+</div>
+
+<div id="Facebook" class="tabcontent">
+    <h3>Facebook</h3>
+    <p>Tokyo is the capital of Japan.</p>
+</div>
+
+<div id="Instagram" class="tabcontent">
+    <h3>Instagram</h3>
+    <p>Tokyo is the capital of Japan.</p>
+</div>
+
+<div id="Twitter" class="tabcontent">
+    <div class="col-auto">
+                    <center><a id="helloWorld" class="btn btn-lg btn-success" style="color:#fff;">Download Twitter Dataset</a></center>
+                </div>
+    <div class="container" style="margin-top: 30px;">
+        <div class="row" style="margin-top: 10px;">
+            <div id="twitterScroller" class="mb-3">
+                <template id="twitter_template">
+                    <div class="col">
+                        <div class="card" style="margin-top: 10px;">
+                              <h5 class="card-header" id="twitterdate"></h5>
+                            <div class="card-body">
+                                <h6 class="card-text" id="twitterfileType"></h6>
+
+                                <p class="card-text" id="twittercontent"></p>
+                                <a href="" id="twitterloadDetails" class="card-link btn btn-outline-primary" target="_blank">Details</a>
+
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center mb-3" id="twitterSentinel">
+            <div class="spinner-border" role="status"></div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    //openTab(event, 'Kaggle');
+    var tab = '';
+    var counter = 0;
+    var num = 0;
+    var loaded = false;
+    var newNews = false;
+    var newKaggle = false;
+    var tweets_data = [];
+    var term = ''
+    var headers = {
+    text: "Tweets".replace(/,/g, '')
+};
+    var input = document.getElementById("searchTerm");
+    console.log(input);
+    input.addEventListener("keyup", function (event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            document.getElementById("getSearchTerm").click();
+        }
+    })
+    function openTab(evt, tabName) {
+
+        if (tab != tabName) {
+            console.log(tab);
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+
+            tab = tabName;
+            if (loaded == false){
+                getSearchData();
+                loaded = true;
+            }
+            getSearchTerm();
+        }
+
+    }
+
+    function getSearchData() {
+
+        var searchTerm;
+        searchTerm = document.getElementById('searchTerm').value;
+        num = document.getElementById('num').value;
+        if(tab=='Kaggle' && term != searchTerm){
+            newNews= false;
+            newKaggle = false;
+            term = searchTerm;
+        }
+        if(tab=='News' && term != searchTerm){
+            newNews= false;
+            newKaggle = false;
+            term = searchTerm;
+        }
+
+        if(tab=='Data.gov' && term != searchTerm){
+            newNews= false;
+            newKaggle = false;
+            term = searchTerm;
+        }
+        if(tab=='KCMO.org' && term != searchTerm){
+            newNews= false;
+            newKaggle = false;
+            term = searchTerm;
+        }
+        if(tab=='Twitter' && term != searchTerm){
+            newNews= false;
+            newKaggle = false;
+            term = searchTerm;
+        }
+
+        switch(tab) {
+            case 'Kaggle': sentinel = document.querySelector('#kaggleSentinel');
+                            if (!newKaggle){
+                                document.getElementById('kaggleScroller').innerHTML = "                <template id=\"kaggle_template\">\n" +
+                                    "                    <div class=\"col\">\n" +
+                                    "                        <div class=\"card\" style=\"margin-top: 10px;\">\n" +
+                                    "                            <h5 class=\"card-header\" id=\"kaggleTitle\"></h5>\n" +
+                                    "                            <div class=\"card-body\">\n" +
+                                    "                                <h6 class=\"card-text\" id=\"kaggleFileType\"></h6>\n" +
+                                    "                                <h6 class=\"card-text\" id=\"kaggleDate\"></h6>\n" +
+                                    "                                <p class=\"card-text\" id=\"kaggleContent\"></p>\n" +
+                                    "                                <a href=\"\" id=\"kaggleLoadDetails\" class=\"card-link btn btn-outline-primary\" target=\"_blank\">Details</a>\n" +
+                                    "                                <a href=\"\" id=\"kaggleLoadDataset\" class=\"card-link btn btn-outline-success\">Load Dataset</a>\n" +
+                                    "                                <br>\n" +
+                                    "                            </div>\n" +
+                                    "                        </div>\n" +
+                                    "                    </div>\n" +
+                                    "                </template>\n";
+                        newKaggle= true;}
+            break;
+            case 'News': sentinel = document.querySelector('#newsSentinel');
+                            if (!newNews){
+                                document.getElementById('newsScroller').innerHTML = "<template id=\"news_template\">\n" +
+                                "                    <div class=\"col\">\n" +
+                                "                        <div class=\"card\" style=\"margin-top: 10px;\">\n" +
+                                "                            <h5 class=\"card-header\" id=\"newstitle\"></h5>\n" +
+                                "                            <div class=\"card-body\">\n" +
+                                "                                <h6 class=\"card-text\" id=\"newsfileType\"></h6>\n" +
+                                "                                <h6 class=\"card-text\" id=\"newsdate\"></h6>\n" +
+                                "                                <p class=\"card-text\" id=\"newscontent\"></p>\n" +
+                                "                                <a href=\"\" id=\"newsloadDetails\" class=\"card-link btn btn-outline-primary\" target=\"_blank\">Details</a>\n" +
+                                "                                <a href=\"\" id=\"newsloadDataset\" class=\"card-link btn btn-outline-success\">Load Dataset</a>\n" +
+                                "                                <br>\n" +
+                                "                            </div>\n" +
+                                "                        </div>\n" +
+                                "                    </div>\n" +
+                                "                </template>";
+                        newNews=true;}
+            break;
+            case 'Data.gov': sentinel = document.querySelector('#datagovSentinel');
+                                document.getElementById('datagovScroller').innerHTML = "<template id=\"datagov_template\">\n" +
+                                    "                    <div class=\"col\">\n" +
+                                    "                        <div class=\"card\" style=\"margin-top: 10px;\">\n" +
+                                    "                            <h5 class=\"card-header\" id=\"datagovTitle\"></h5>\n" +
+                                    "                            <div class=\"card-body\">\n" +
+                                    "                                <h6 class=\"card-text\" id=\"datagovFileType\"></h6>\n" +
+                                    "                                <h6 class=\"card-text\" id=\"datagovDate\"></h6>\n" +
+                                    "                                <p class=\"card-text\" id=\"datagovContent\"></p>\n" +
+                                    "                                <a href=\"\" id=\"datagovLoadDetails\" class=\"card-link btn btn-outline-primary\" target=\"_blank\">Details</a>\n" +
+                                    "                                <a href=\"\" id=\"datagovLoadDataset\" class=\"card-link btn btn-outline-success\">Load Dataset</a>\n" +
+                                    "                                <br>\n" +
+                                    "                            </div>\n" +
+                                    "                        </div>\n" +
+                                    "                    </div>\n" +
+                                    "                </template>";
+            break;
+            case 'KCMO.org': sentinel = document.querySelector('#KCMOSentinel');
+                                document.getElementById('KCMOScroller').innerHTML = "<template id=\"KCMO_template\">\n" +
+                                    "                    <div class=\"col\">\n" +
+                                    "                        <div class=\"card\" style=\"margin-top: 10px;\">\n" +
+                                    "                            <h5 class=\"card-header\" id=\"KCMOTitle\"></h5>\n" +
+                                    "                            <div class=\"card-body\">\n" +
+                                    "                                <h6 class=\"card-text\" id=\"KCMOFileType\"></h6>\n" +
+                                    "                                <h6 class=\"card-text\" id=\"KCMODate\"></h6>\n" +
+                                    "                                <p class=\"card-text\" id=\"KCMOContent\"></p>\n" +
+                                    "                                <a href=\"\" id=\"KCMOLoadDetails\" class=\"card-link btn btn-outline-primary\" target=\"_blank\">Details</a>\n" +
+                                    "                                <a href=\"\" id=\"KCMOLoadDataset\" class=\"card-link btn btn-outline-success\">Load Dataset</a>\n" +
+                                    "                                <br>\n" +
+                                    "                            </div>\n" +
+                                    "                        </div>\n" +
+                                    "                    </div>\n" +
+                                    "                </template>";
+            break;
+            case 'Twitter': sentinel = document.querySelector('#twitterSentinel');
+                                document.getElementById('twitterScroller').innerHTML = "<template id=\"twitter_template\">\n" +
+                                    "                    <div class=\"col\">\n" +
+                                    "                        <div class=\"card\" style=\"margin-top: 10px;\">\n" +
+                                    "                            <h5 class=\"card-header\" id=\"twitterdate\"></h5>\n" +
+                                    "                            <div class=\"card-body\">\n" +
+                                    "                                <h6 class=\"card-text\" id=\"twitterfileType\"></h6>\n" +
+                                    "                                <p class=\"card-text\" id=\"twittercontent\"></p>\n" +
+                                    "                                <a href=\"\" id=\"twitterloadDetails\" class=\"card-link btn btn-outline-primary\" target=\"_blank\">Details</a>\n" +
+                                    "                                <br>\n" +
+                                    "                            </div>\n" +
+                                    "                        </div>\n" +
+                                    "                    </div>\n" +
+                                    "                </template>";
+            break;
+        }
+
+        console.log("sentinel Observer");
+        // Instruct the IntersectionObserver to watch the sentinel
+        intersectionObserver.observe(sentinel);
+
+        getSearchTerm();
+    }
+
+    function getSearchTerm() {
+        var counter;
+        //var template = document.querySelector('#post_template');
+        //var scroller = document.querySelector("#scroller");
+
+        if (tab == "Twitter")
+            x = `/loaddata?source=${tab}&term=${term}&count=${num}`;
+        else
+            x = `/loaddata?source=${tab}&term=${term}`;
+
+        fetch(x).then((response) => {
+
+            response.json().then((data) => {
+                console.log(data);
+                if (tab=="Kaggle" && data[0].source=="Kaggle") {
+                    scroller = document.querySelector("#kaggleScroller");
+                    template = document.querySelector('#kaggle_template');
+                    for (var i = 0; i < data.length; i++) {
+
+                        // Clone the HTML template
+                        let template_clone = template.content.cloneNode(true);
+                        if(data[i].name) {
+                            console.log("hello")
+
+                            // Query & update the template content
+                            template_clone.querySelector("#kaggleTitle").innerHTML = `${data[i].name} | Size: ${data[i].size}`;
+                            template_clone.querySelector("#kaggleContent").innerHTML = data[i].alternateName;
+                            template_clone.querySelector("#kaggleFileType").innerHTML = `Filetype: ${data[i].fileType}`;
+                            template_clone.querySelector("#kaggleDate").innerHTML = `Last updated: ${data[i].date}`;
+                            template_clone.querySelector("#kaggleLoadDetails").href = data[i].url;
+                            template_clone.querySelector("#kaggleLoadDataset").href = data[i].contentUrl;
+                        }
+
+                        // Append template to dom
+                        scroller.appendChild(template_clone);
+
+                        // Increment the counter
+                        counter += 1;
+
+                        console.log(1);
+
+                        // Update the counter in the navbar
+                        //loaded.innerText = `${counter} items loaded`;
+                    }
+                }
+                else if(tab=="News"){
+                    scroller = document.querySelector("#newsScroller");
+                    template = document.querySelector('#news_template');
+                    console.log("I am in news now");
+                    for (var i = 0; i < data.length; i++) {
+
+                        // Clone the HTML template
+                        let template_clone = template.content.cloneNode(true);
+
+                        // Query & update the template content
+                        template_clone.querySelector("#newstitle").innerHTML = data[i].title;
+                        template_clone.querySelector("#newscontent").innerHTML = data[i].description;
+                        template_clone.querySelector("#newsdate").innerHTML = `Last updated: ${data[i].publishedAt}`;
+                        template_clone.querySelector("#newsloadDetails").href = data[i].url;
+                        template_clone.querySelector("#newsloadDataset").href = "#";
+
+
+                        // Append template to dom
+                        scroller.appendChild(template_clone);
+
+                        // Increment the counter
+                        counter += 1;
+
+                        console.log(1);
+
+                        // Update the counter in the navbar
+                        //loaded.innerText = `${counter} items loaded`;
+                    }
+                }
+                else if(tab=="Data.gov"&& data[0].title!== undefined){
+                    console.log(data);
+                    scroller = document.querySelector("#datagovScroller");
+                    template = document.querySelector('#datagov_template');
+                    for (var i = 0; i < data.length; i++) {
+
+                        // Clone the HTML template
+                        let template_clone = template.content.cloneNode(true);
+                        if(data[i].title) {
+                            console.log("hello")
+
+                            // Query & update the template content
+                            template_clone.querySelector("#datagovTitle").innerHTML = `Last updated: ${data[i].metadata_modified}`;
+                            template_clone.querySelector("#datagovContent").innerHTML = data[i].notes;
+                            template_clone.querySelector("#datagovFileType").innerHTML = `Filetype: ${data[i].resources[0].format}`;
+                            template_clone.querySelector("#datagovDate").innerHTML = ''
+                            template_clone.querySelector("#datagovLoadDetails").href = `https://catalog.data.gov/dataset/${data[i].name}`;
+                            template_clone.querySelector("#datagovLoadDataset").href = data[i].resources[0].url;
+                        }
+
+                        // Append template to dom
+                        scroller.appendChild(template_clone);
+
+                        // Increment the counter
+                        counter += 1;
+
+                        console.log(1);
+
+                        // Update the counter in the navbar
+                        //loaded.innerText = `${counter} items loaded`;
+                    }
+                }
+                else if(tab=="KCMO.org"&& data[0].link!== undefined){
+                    scroller = document.querySelector("#KCMOScroller");
+                    template = document.querySelector('#KCMO_template');
+                    console.log(data.length);
+                    for (var i = 0; i < data.length; i++) {
+
+                        // Clone the HTML template
+                        let template_clone = template.content.cloneNode(true);
+
+                            // Query & update the template content
+                            template_clone.querySelector("#KCMOTitle").innerHTML = `${data[i].resource.name}`;
+                            template_clone.querySelector("#KCMOContent").innerHTML = data[i].resource.description;
+                            template_clone.querySelector("#KCMOFileType").innerHTML = `Filetype: ${data[i].resource.type}`;
+                            template_clone.querySelector("#KCMODate").innerHTML = `Last updated: ${data[i].resource.data_updated_at}`;
+                            template_clone.querySelector("#KCMOLoadDetails").href = data[i].permalink;
+                            template_clone.querySelector("#KCMOLoadDataset").href = "#";
+
+                        // Append template to dom
+                        scroller.appendChild(template_clone);
+
+                        // Increment the counter
+                        counter += 1;
+
+                        console.log(1);
+
+                        // Update the counter in the navbar
+                        //loaded.innerText = `${counter} items loaded`;
+                    }
+                }
+                else if(tab=="Twitter"){
+                    tweets_data = [];
+                    var fileTitle = term; // or 'my-unique-title'
+                    scroller = document.querySelector("#twitterScroller");
+                    template = document.querySelector('#twitter_template');
+                    console.log("I am in Twitter now");
+                    for (var i = 0; i < data.length; i++) {
+
+                        // Clone the HTML template
+                        let template_clone = template.content.cloneNode(true);
+
+                        // Query & update the template content
+                        template_clone.querySelector("#twittercontent").innerHTML = data[i].full_text;
+                        template_clone.querySelector("#twitterdate").innerHTML = `Date tweeted: ${data[i].created_at}`;
+                        template_clone.querySelector("#twitterloadDetails").href = "#";
+
+                        tweets_data.push({'text': data[i].full_text});
+
+                        // Append template to dom
+                        scroller.appendChild(template_clone);
+
+                        // Increment the counter
+                        counter += 1;
+
+                        console.log(1);
+
+                        // Update the counter in the navbar
+                        //loaded.innerText = `${counter} items loaded`;
+                    }
+                    console.log(tweets_data);
+                    var tweetsFormatted = [];
+
+                    // format the data
+                    tweets_data.forEach((item) => {
+                        tweetsFormatted.push({
+                            text: item.text.replace(/,/g, '')
+                        });
+                    });
+                    exportCSVFile(headers, tweetsFormatted, fileTitle);
+                }
+            });
+        });
+
+    }
+
+    // Create a new IntersectionObserver instance
+    var intersectionObserver = new IntersectionObserver(entries => {
+
+        console.log("I Ran");
+
+      // Uncomment below to see the entry.intersectionRatio when
+      // the sentinel comes into view
+
+      // entries.forEach(entry => {
+      //   console.log(entry.intersectionRatio);
+      // })
+
+      // If intersectionRatio is 0, the sentinel is out of view
+      // and we don't need to do anything. Exit the function
+      if (entries[0].intersectionRatio <= 0) {
+        return;
+      }
+
+      // Call the loadItems function
+      getSearchTerm();
+
+    });
+
+    function convertToCSV(objArray) {
+    var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+    var str = '';
+
+    for (var i = 0; i < array.length; i++) {
+        var line = '';
+        for (var index in array[i]) {
+            if (line != '') line += ','
+
+            line += array[i][index];
+        }
+
+        str += line + '\r\n';
+    }
+
+    return str;
+}
+
+function exportCSVFile(headers, items, fileTitle) {
+    if (headers) {
+        items.unshift(headers);
+    }
+
+    // Convert Object to JSON
+    var jsonObject = JSON.stringify(items);
+
+    var csv = this.convertToCSV(jsonObject);
+
+    var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
+
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    if (navigator.msSaveBlob) { // IE 10+
+        navigator.msSaveBlob(blob, exportedFilenmae);
+    } else {
+        var link = document.getElementById("helloWorld");
+        if (link.download !== undefined) { // feature detection
+            // Browsers that support HTML5 download attribute
+            var url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", exportedFilenmae);
+            //document.body.removeChild(link);
+        }
+    }
+}
+
+itemsNotFormatted = [
+    {
+        model: 'Samsung S7',
+        chargers: '55',
+        cases: '56',
+        earphones: '57',
+        scratched: '2'
+    },
+    {
+        model: 'Pixel XL',
+        chargers: '77',
+        cases: '78',
+        earphones: '79',
+        scratched: '4'
+    },
+    {
+        model: 'iPhone 7',
+        chargers: '88',
+        cases: '89',
+        earphones: '90',
+        scratched: '6'
+    }
+];
+
+
+
+
+
+
+
+
+
+</script>
+
+{% endblock %}
