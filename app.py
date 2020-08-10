@@ -134,6 +134,7 @@ def loaddata():
             num = int(request.args.get('count'))
         except ValueError:
             num = 100
+            term = 'summer camps'
         consumer_key = "kY9uF1FuC7GzMyVxMRHku61Kx"
         consumer_secret = "Zk4bTnmMzNF8UTmMhviocFZa1a5Ny6sSZuSjI00xhsPvhzcAvS"
         access_token = "1291188055068610561-I9fHoOhalXPjYXkYa7VWlbS7xFM1N1"
