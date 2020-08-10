@@ -14,7 +14,7 @@ datasetCount = 1
 oldTerm = ''
 newsPage = 1
 client = Socrata("data.kcmo.org", None)
-
+api = None
 app = Flask(__name__, template_folder='templates')
 
 def check_file_type(files):
@@ -38,7 +38,8 @@ def my_form():
 
 @app.route('/', methods=['POST'])
 def my_form_post():
-    api = KaggleApi()
+    if api is None:
+        api = KaggleApi()
     print('Hello')
     api.authenticate()
     text = request.form['text']
@@ -86,7 +87,8 @@ def loaddata():
         datasetCount = 1
         newsPage = 1
     if(source=='Kaggle'):
-        api = KaggleApi()
+        if  api is None:
+            api = KaggleApi()
         api.authenticate()
         text = term
         datasets = api.dataset_list(search=text, page = datasetCount)
@@ -141,9 +143,9 @@ def loaddata():
         access_token_secret = "y1Pnxq4weOc80btZtAT5XiI9hIO370WjdQzgMs8waPYI8"
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_token, access_token_secret)
-        api = tweepy.API(auth, wait_on_rate_limit=True, parser=tweepy.parsers.JSONParser())
+        twitter_api = tweepy.API(auth, wait_on_rate_limit=True, parser=tweepy.parsers.JSONParser())
 
-        x = (api.search(q=term, count=100))
+        x = (twitter_api.search(q=term, count=100))
         max_id = x['search_metadata']['max_id']
 
         tweets_list=[]
@@ -151,7 +153,7 @@ def loaddata():
         # Pulling individual tweets from query
 
         while len(tweets_list) < num:
-            for status in api.search(q=term, max_id=max_id, count=100, result_type='mixed', tweet_mode='extended')['statuses']:
+            for status in twitter_api.search(q=term, max_id=max_id, count=100, result_type='mixed', tweet_mode='extended')['statuses']:
                 tweets_list.append(status)
             max_id = tweets_list[-1]['id']
 
