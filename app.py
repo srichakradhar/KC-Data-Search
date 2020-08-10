@@ -41,8 +41,8 @@ def my_form_post():
     global api
     if api is None:
         api = KaggleApi()
-    print('Hello')
-    api.authenticate()
+        print('Hello')
+        api.authenticate()
     text = request.form['text']
     datasets = api.dataset_list(search=text)
     response = requests.get('http://catalog.data.gov/api/3/action/package_search?q=' +text+ '&rows=50')
@@ -91,7 +91,7 @@ def loaddata():
     if(source=='Kaggle'):
         if api is None:
             api = KaggleApi()
-        api.authenticate()
+            api.authenticate()
         text = term
         datasets = api.dataset_list(search=text, page = datasetCount)
         dataset = []
