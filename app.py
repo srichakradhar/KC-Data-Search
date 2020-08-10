@@ -38,6 +38,7 @@ def my_form():
 
 @app.route('/', methods=['POST'])
 def my_form_post():
+    global api
     if api is None:
         api = KaggleApi()
     print('Hello')
@@ -78,6 +79,7 @@ def my_form_post():
 
 @app.route('/loaddata')
 def loaddata():
+    global api
     source = request.args.get('source')
     term = request.args.get('term')
     global oldTerm, count, datasetCount, newsPage
@@ -87,7 +89,7 @@ def loaddata():
         datasetCount = 1
         newsPage = 1
     if(source=='Kaggle'):
-        if  api is None:
+        if api is None:
             api = KaggleApi()
         api.authenticate()
         text = term
